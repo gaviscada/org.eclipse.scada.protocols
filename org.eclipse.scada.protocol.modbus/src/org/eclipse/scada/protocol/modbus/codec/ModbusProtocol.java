@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.scada.protocol.modbus.codec;
 
+import java.nio.ByteOrder;
+
 import org.apache.mina.core.buffer.IoBuffer;
 import org.eclipse.scada.protocol.modbus.Constants;
 import org.eclipse.scada.protocol.modbus.message.BaseMessage;
@@ -24,6 +26,38 @@ import org.eclipse.scada.protocol.modbus.message.WriteSingleDataResponse;
 
 public class ModbusProtocol
 {
+
+    /**
+     * Convert the string to a {@link ByteOrder}
+     * 
+     * @param string
+     *            the string to convert
+     * @param defaultOrder
+     *            the default data byte order to use when
+     *            <code>string</string> is <code>null</code>
+     * @return the byte order
+     * @throws IllegalArgumentException
+     *             if the string is neither <code>null</code>, "BIG_ENDIAN" nor
+     *             "LITTLE_ENDIAN"
+     */
+    public static ByteOrder makeOrder ( final String string, final ByteOrder defaultOrder )
+    {
+        if ( string == null )
+        {
+            return defaultOrder;
+        }
+
+        if ( ByteOrder.BIG_ENDIAN.toString ().equals ( string ) )
+        {
+            return ByteOrder.BIG_ENDIAN;
+        }
+        if ( ByteOrder.LITTLE_ENDIAN.toString ().equals ( string ) )
+        {
+            return ByteOrder.LITTLE_ENDIAN;
+        }
+        throw new IllegalArgumentException ( String.format ( "'%s' is not a valid byte order", string ) );
+    }
+
     public static Pdu encodeAsMaster ( final BaseMessage message )
     {
         final IoBuffer data = IoBuffer.allocate ( 256 );
@@ -67,9 +101,9 @@ public class ModbusProtocol
         {
             final ReadResponse readResponseMessage = (ReadResponse)message;
             data.put ( readResponseMessage.getFunctionCode () );
-            int length = readResponseMessage.getData ().remaining ();
+            final int length = readResponseMessage.getData ().remaining ();
             data.put ( (byte)length );
-            byte[] remainingData = new byte[length];
+            final byte[] remainingData = new byte[length];
             readResponseMessage.getData ().get ( remainingData );
             data.put ( remainingData );
         }
@@ -150,8 +184,8 @@ public class ModbusProtocol
                 return new WriteSingleDataRequest ( message.getTransactionId (), message.getUnitIdentifier (), functionCode, data.getUnsignedShort (), data.getUnsignedShort () );
             case Constants.FUNCTION_CODE_WRITE_MULTIPLE_COILS:
             case Constants.FUNCTION_CODE_WRITE_MULTIPLE_REGISTERS:
-                int startAddress = data.getUnsignedShort ();
-                byte[] b = new byte[data.remaining ()];
+                final int startAddress = data.getUnsignedShort ();
+                final byte[] b = new byte[data.remaining ()];
                 data.get ( b );
                 return new WriteMultiDataRequest ( message.getTransactionId (), message.getUnitIdentifier (), functionCode, startAddress, b );
             default:
@@ -165,5 +199,44 @@ public class ModbusProtocol
         final byte[] result = new byte[numOfBytes];
         buffer.get ( result, 0, numOfBytes );
         return IoBuffer.wrap ( result );
+    }
+
+    public static IoBuffer convertData ( final IoBuffer data, final ByteOrder dataOrder )
+    {
+        if ( dataOrder == ByteOrder.BIG_ENDIAN )
+        {
+            return data;
+        }
+
+        final IoBuffer result = IoBuffer.allocate ( data.capacity () );
+        result.order ( dataOrder );
+
+        for ( int i = 0; i < data.remaining () / 2; i++ )
+        {
+            // convert to LITTLE_ENDIAN
+            result.putUnsignedShort ( data.getUnsignedShort ( i * 2 ) );
+        }
+
+        // the byte order we use is BIG_ENDIAN
+        result.order ( ByteOrder.BIG_ENDIAN );
+
+        return result;
+    }
+
+    public static byte[] encodeData ( final byte[] data, final ByteOrder dataOrder )
+    {
+        if ( dataOrder == ByteOrder.BIG_ENDIAN )
+        {
+            return data;
+        }
+
+        byte t;
+        for ( int i = 0; i < data.length / 2; i++ )
+        {
+            t = data[i * 2];
+            data[i * 2] = data[i * 2 + 1];
+            data[i * 2 + 1] = t;
+        }
+        return data;
     }
 }
