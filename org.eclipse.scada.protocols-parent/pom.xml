@@ -1,66 +1,74 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.eclipse.scada.releng</groupId>
-    <artifactId>superParent</artifactId>
-    <version>0.1.0.M2</version>
-  </parent>
-  <groupId>org.eclipse.scada.protocols</groupId>
-  <artifactId>org.eclipse.scada.protocols-parent</artifactId>
-  <version>0.1.0.M2</version>
-  <packaging>pom</packaging>
-  <modules>
-    <module>../org.eclipse.scada.protocols-p2</module>
-    <module>../org.eclipse.scada.protocols.feature</module>
-    <module>../org.eclipse.scada.protocols.sdk.feature</module>
-    <module>../org.eclipse.scada.protocol.arduino</module>
-    <module>../org.eclipse.scada.protocol.common</module>
-    <module>../org.eclipse.scada.protocol.dave</module>
-    <module>../org.eclipse.scada.protocol.iso8073</module>
-    <module>../org.eclipse.scada.protocol.ngp.common</module>
-    <module>../org.eclipse.scada.protocol.ngp.model</module>
-    <module>../org.eclipse.scada.protocol.ngp.model.edit</module>
-    <module>../org.eclipse.scada.protocol.ngp.model.editor</module>
-    <module>../org.eclipse.scada.protocol.modbus</module>
-    <module>../org.eclipse.scada.protocol.tkpt</module>
-    <module>../org.eclipse.scada.protocols</module>
-  </modules>
-  <properties>
-    <tycho.scmUrl>scm:git:git://git.eclipse.org/gitroot/scada/org.eclipse.scada.protocols.git</tycho.scmUrl>
-  </properties>
-  <repositories>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <id>repo.eclipse.scada.org</id>
-      <name>Eclipse SCADA Repository</name>
-      <url>https://repo.eclipse.org/content/groups/eclipsescada/</url>
-    </repository>
-  </repositories>
-  <profiles>
-    <profile>
-      <id>integration</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <repositories>
-        <repository>
-          <id>eclipse.scada.utils</id>
-          <url>https://hudson.eclipse.org/scada/job/org.eclipse.scada.utils-master/lastSuccessfulBuild/artifact/output/p2</url>
-          <layout>p2</layout>
-        </repository>
-        <repository>
-          <id>eclipse.scada.external</id>
-          <url>https://hudson.eclipse.org/scada/job/org.eclipse.scada.external-master/lastSuccessfulBuild/artifact/output/p2</url>
-          <layout>p2</layout>
-        </repository>
-      </repositories>
-    </profile>
-  </profiles>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.eclipse.scada.releng</groupId>
+		<artifactId>superParent</artifactId>
+		<version>0.1.0-SNAPSHOT</version>
+	</parent>
+
+	<groupId>org.eclipse.scada.protocols</groupId>
+	<artifactId>org.eclipse.scada.protocols-parent</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<tycho.scmUrl>scm:git:git://git.eclipse.org/gitroot/scada/org.eclipse.scada.protocols.git</tycho.scmUrl>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>repo.eclipse.scada.org</id>
+			<name>Eclipse SCADA Repository</name>
+			<url>https://repo.eclipse.org/content/groups/eclipsescada/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<profiles>
+		<profile>
+			<id>integration</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<repositories>
+				<repository>
+					<id>eclipse.scada.utils</id>
+					<layout>p2</layout>
+					<url>https://hudson.eclipse.org/scada/job/org.eclipse.scada.utils-master/lastSuccessfulBuild/artifact/output/p2</url>
+				</repository>
+				<repository>
+					<id>eclipse.scada.external</id>
+					<layout>p2</layout>
+					<url>https://hudson.eclipse.org/scada/job/org.eclipse.scada.external-master/lastSuccessfulBuild/artifact/output/p2</url>
+				</repository>
+			</repositories>
+		</profile>
+	</profiles>
+
+	<modules>
+		<module>../org.eclipse.scada.protocols-p2</module> <!-- holds the p2 repository -->
+
+		<module>../org.eclipse.scada.protocols.feature</module>
+		<module>../org.eclipse.scada.protocols.sdk.feature</module>
+		<module>../org.eclipse.scada.protocol.arduino</module>
+		<module>../org.eclipse.scada.protocol.common</module>
+		<module>../org.eclipse.scada.protocol.dave</module>
+		<module>../org.eclipse.scada.protocol.iso8073</module>
+		<module>../org.eclipse.scada.protocol.ngp.common</module>
+		<module>../org.eclipse.scada.protocol.ngp.model</module>
+		<module>../org.eclipse.scada.protocol.ngp.model.edit</module>
+		<module>../org.eclipse.scada.protocol.ngp.model.editor</module>
+		<module>../org.eclipse.scada.protocol.modbus</module>
+		<module>../org.eclipse.scada.protocol.tkpt</module>
+		<module>../org.eclipse.scada.protocols</module>
+	</modules>
+
 </project>
