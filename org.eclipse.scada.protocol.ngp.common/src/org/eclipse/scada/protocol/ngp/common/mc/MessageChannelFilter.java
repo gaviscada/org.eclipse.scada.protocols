@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 TH4 SYSTEMS GmbH and others.
+ * Copyright (c) 2013, 2014 TH4 SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     TH4 SYSTEMS GmbH - initial API and implementation
  *     Jens Reimann - implement security callback system
  *     Jürgen Rose - changes, fixes and modifications for timeout handling
+ *     IBH SYSTEMS GmbH - add some logging, fix regression
  *******************************************************************************/
 package org.eclipse.scada.protocol.ngp.common.mc;
 
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.filterchain.IoFilterChain.Entry;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.DefaultWriteRequest;
 import org.apache.mina.core.write.WriteRequest;
@@ -114,12 +116,26 @@ public class MessageChannelFilter extends IoFilterAdapter
             final Object reply = createSession ( session, nextFilter, (HelloMessage)message );
             logger.info ( "Reply to session creation: {}", reply ); //$NON-NLS-1$
 
-            nextFilter.filterWrite ( session, new DefaultWriteRequest ( reply ) );
-
             if ( reply instanceof AcceptMessage )
             {
                 this.acceptedProperties = Collections.unmodifiableMap ( ( (AcceptMessage)reply ).getProperties () );
+
+                // configure the session, enable filters
                 configureSession ( session, nextFilter, this.acceptedProperties );
+
+                /*
+                 * send reply - this must be the first message after the configureSession call
+                 * so that filter can reset their initial flag. The first message must still be
+                 * un-filtered since the other side needs to adapt its filter chain first. However
+                 * this must be an atomic operation since sending and changing the filter in two
+                 * separate steps could mean that we already receive the reply to our ACCEPT
+                 * before we had a chance to change our filter chain. 
+                 */
+                nextFilter.filterWrite ( session, new DefaultWriteRequest ( reply ) );
+
+                // post configure the session
+                postConfigureSession ( session, nextFilter, this.acceptedProperties );
+
                 if ( isOpened ( session ) )
                 {
                     // if the session is marked "open" by the StartSessionHandshake, then notify the open state immediately
@@ -128,17 +144,22 @@ public class MessageChannelFilter extends IoFilterAdapter
             }
             else
             {
-                // close
+                // send reply
+                nextFilter.filterWrite ( session, new DefaultWriteRequest ( reply ) );
+                // close - after message was sent
                 session.close ( false );
             }
+            dumpFilterChain ( session );
             logger.debug ( "Done handling HelloMessage" );
         }
         else if ( message instanceof AcceptMessage && !opened && this.clientMode )
         {
             this.acceptedProperties = Collections.unmodifiableMap ( ( (AcceptMessage)message ).getProperties () );
             configureSession ( session, nextFilter, this.acceptedProperties );
+            postConfigureSession ( session, nextFilter, this.acceptedProperties );
             markOpened ( session );
             startSession ( session, nextFilter );
+            dumpFilterChain ( session );
         }
         else if ( message instanceof CloseMessage )
         {
@@ -156,6 +177,7 @@ public class MessageChannelFilter extends IoFilterAdapter
             logger.debug ( "Starting session" );
             markOpened ( session );
             startSession ( session, nextFilter );
+            dumpFilterChain ( session );
         }
         else
         {
@@ -184,6 +206,19 @@ public class MessageChannelFilter extends IoFilterAdapter
         }
 
         nextFilter.sessionOpened ( session );
+    }
+
+    private void dumpFilterChain ( final IoSession session )
+    {
+        if ( logger.isInfoEnabled () )
+        {
+            logger.info ( "Filter chain:" );
+
+            for ( final Entry entry : session.getFilterChain ().getAll () )
+            {
+                logger.info ( "\t{} -> {}", entry.getName (), entry.getFilter () );
+            }
+        }
     }
 
     private Object createHelloMessage ( final IoSession session, final NextFilter nextFilter )
@@ -220,6 +255,11 @@ public class MessageChannelFilter extends IoFilterAdapter
         {
             handshake.apply ( context, acceptedProperties );
         }
+    }
+
+    private void postConfigureSession ( final IoSession session, final NextFilter nextFilter, final Map<String, String> acceptedProperties ) throws Exception
+    {
+        final HandshakeContext context = new HandshakeContext ( ProtocolConfiguration.fromSession ( session ), this.clientMode, session, nextFilter );
 
         logger.debug ( "Running post apply" );
 

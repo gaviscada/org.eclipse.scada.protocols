@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2013 TH4 SYSTEMS GmbH and others.
+ * Copyright (c) 2010, 2014 TH4 SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,8 +8,9 @@
  * Contributors:
  *     TH4 SYSTEMS GmbH - initial API and implementation
  *     Jens Reimann - implement security callback system
+ *     IBH SYSTEMS GmbH - fix a possible NPE when the stream compression
+ *                        was disabled in the constructor, fix regression
  *******************************************************************************/
-
 
 package org.eclipse.scada.protocol.ngp.common.mc.handshake;
 
@@ -25,21 +26,35 @@ import org.slf4j.LoggerFactory;
 public class StreamCompressionHandshake extends AbstractHandshake
 {
 
+    private static final String PROP_DISABLE_COMPRESSION = "org.eclipse.scada.protocol.ngp.common.mc.handshake.disableCompression";
+
     private final static Logger logger = LoggerFactory.getLogger ( StreamCompressionHandshake.class );
 
     private final Integer maxStreamCompressionLevel;
 
     public StreamCompressionHandshake ( final Integer maxStreamCompressionLevel )
     {
-        this.maxStreamCompressionLevel = Math.min ( maxStreamCompressionLevel, CompressionFilter.COMPRESSION_MAX );
+        if ( Boolean.getBoolean ( PROP_DISABLE_COMPRESSION ) )
+        {
+            logger.info ( "Stream compression disabled by system property (%s)", PROP_DISABLE_COMPRESSION );
+            this.maxStreamCompressionLevel = null;
+        }
+        else if ( maxStreamCompressionLevel != null )
+        {
+            this.maxStreamCompressionLevel = Math.min ( maxStreamCompressionLevel, CompressionFilter.COMPRESSION_MAX );
+        }
+        else
+        {
+            this.maxStreamCompressionLevel = null;
+        }
     }
 
     @Override
     public void request ( final HandshakeContext handshakeContext, final Map<String, String> helloProperties )
     {
-        if ( Boolean.getBoolean ( "org.eclipse.scada.protocol.ngp.common.mc.handshake.disableCompression" ) )
+        if ( Boolean.getBoolean ( PROP_DISABLE_COMPRESSION ) )
         {
-            logger.info ( "Stream compression disabled by system property (org.eclipse.scada.protocol.ngp.common.mc.handshake.disableCompression)" );
+            logger.info ( "Stream compression disabled by system property (%s)", PROP_DISABLE_COMPRESSION );
             return;
         }
 
@@ -105,7 +120,9 @@ public class StreamCompressionHandshake extends AbstractHandshake
         final Integer streamCompressionLevel = getInteger ( acceptedProperties, Constants.PROP_STREAM_COMPRESSION_LEVEL, null );
         if ( streamCompressionLevel != null )
         {
-            new ChainConfigurator ( handshakeContext.getSession () ).startStreamCompression ( streamCompressionLevel, false );
+            /* if we are in client mode the first packet (START) must already be compressed.
+             * on the server side the first packet (ACCECPT) must must be unfiltered */
+            new ChainConfigurator ( handshakeContext.getSession () ).startStreamCompression ( streamCompressionLevel, !handshakeContext.isClientMode () );
         }
     }
 
