@@ -1,20 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site>
-   <feature url="features/org.eclipse.scada.protocols_0.1.0.qualifier.jar" id="org.eclipse.scada.protocols" version="0.1.0.qualifier">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><site>
+   <feature id="org.eclipse.scada.protocols" url="features/org.eclipse.scada.protocols_0.1.0.v20140312-1603.jar" version="0.1.0.v20140312-1603">
       <category name="org.eclipse.scada.protocols.category"/>
    </feature>
-   <feature url="features/org.eclipse.scada.protocols.sdk_0.1.0.qualifier.jar" id="org.eclipse.scada.protocols.sdk" version="0.1.0.qualifier">
+   <feature id="org.eclipse.scada.protocols.sdk" url="features/org.eclipse.scada.protocols.sdk_0.1.0.v20140312-1603.jar" version="0.1.0.v20140312-1603">
       <category name="org.eclipse.scada.protocols.sdk.category"/>
    </feature>
-   <feature url="features/org.eclipse.scada.protocols.editors_0.1.0.qualifier.jar" id="org.eclipse.scada.protocols.editors" version="0.1.0.qualifier">
+   <feature id="org.eclipse.scada.protocols.editors" url="features/org.eclipse.scada.protocols.editors_0.1.0.v20140312-1603.jar" version="0.1.0.v20140312-1603">
       <category name="org.eclipse.scada.protocols.sdk.category"/>
    </feature>
-   <category-def name="org.eclipse.scada.protocols.category" label="Eclipse SCADA Protocols (Incubation)">
+   <category-def label="Eclipse SCADA Protocols (Incubation)" name="org.eclipse.scada.protocols.category">
       <description>
          Various protocol implementations.
       </description>
    </category-def>
-   <category-def name="org.eclipse.scada.protocols.sdk.category" label="Eclipse SCADA Protocols SDK (Incubation)">
+   <category-def label="Eclipse SCADA Protocols SDK (Incubation)" name="org.eclipse.scada.protocols.sdk.category">
       <description>
          Binaries and sources to all Eclipse SCADA Protocols modules.
       </description>
