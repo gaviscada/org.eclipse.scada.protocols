@@ -1,26 +1,16 @@
 Manifest-Version: 1.0
-Require-Bundle: org.eclipse.core.runtime,org.eclipse.emf.ecore;visibil
- ity:=reexport;bundle-version="2.8.0",org.eclipse.emf.ecore.xmi;visibi
- lity:=reexport;bundle-version="2.8.0"
-Export-Package: org.eclipse.scada.protocol.ngp.model.Protocol;uses:="o
- rg.eclipse.emf.ecore,org.eclipse.emf.common.util";version="0.1.0",org
- .eclipse.scada.protocol.ngp.model.Protocol.impl;uses:="org.eclipse.sc
- ada.protocol.ngp.model.Protocol,  org.eclipse.emf.ecore,  org.eclipse
- .emf.common.util,  org.eclipse.emf.common.notify,  org.eclipse.emf.ec
- ore.impl";version="0.1.0",org.eclipse.scada.protocol.ngp.model.Protoc
- ol.util;uses:="org.eclipse.emf.ecore.resource,  org.eclipse.emf.ecore
- .xmi.impl,  org.eclipse.emf.ecore.util,  org.eclipse.scada.protocol.n
- gp.model.Protocol,  org.eclipse.emf.ecore,  org.eclipse.emf.common.no
- tify.impl,  org.eclipse.emf.common.util,  org.eclipse.emf.common.noti
- fy,  org.eclipse.emf.ecore.resource.impl";version="0.1.0"
-Bundle-Vendor: %providerName
-Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .
-Bundle-Version: 0.1.0.v20140321-1022
-Bundle-Localization: plugin
-Bundle-Name: %pluginName
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.eclipse.scada.protocol.ngp.model;singleton:=t
- rue
+Bundle-Name: %pluginName
+Bundle-SymbolicName: org.eclipse.scada.protocol.ngp.model;singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Bundle-ClassPath: .
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Export-Package: org.eclipse.scada.protocol.ngp.model.Protocol;uses:="org.eclipse.emf.ecore,org.eclipse.emf.common.util";version="0.1.0",
+ org.eclipse.scada.protocol.ngp.model.Protocol.impl;uses:="org.eclipse.scada.protocol.ngp.model.Protocol,  org.eclipse.emf.ecore,  org.eclipse.emf.common.util,  org.eclipse.emf.common.notify,  org.eclipse.emf.ecore.impl";version="0.1.0",
+ org.eclipse.scada.protocol.ngp.model.Protocol.util;uses:="org.eclipse.emf.ecore.resource,  org.eclipse.emf.ecore.xmi.impl,  org.eclipse.emf.ecore.util,  org.eclipse.scada.protocol.ngp.model.Protocol,  org.eclipse.emf.ecore,  org.eclipse.emf.common.notify.impl,  org.eclipse.emf.common.util,  org.eclipse.emf.common.notify,  org.eclipse.emf.ecore.resource.impl";version="0.1.0"
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.emf.ecore;visibility:=reexport;bundle-version="2.8.0",
+ org.eclipse.emf.ecore.xmi;visibility:=reexport;bundle-version="2.8.0"
+Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-
