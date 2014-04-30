@@ -1,15 +1,17 @@
 Manifest-Version: 1.0
-Export-Package: org.eclipse.scada.protocol.iso8073;version="0.1.0"; us
- es:="org.apache.mina.core.session,  org.apache.mina.core.buffer,  org
- .apache.mina.core.filterchain,  org.apache.mina.core.write"
-Bundle-Vendor: Eclipse SCADA Project
-Bundle-Version: 0.1.0.v20140407-1215
-Bundle-Name: Eclipse SCADA ISO 8073 (Incubation)
 Bundle-ManifestVersion: 2
-Import-Package: org.apache.mina.core.buffer;version="2.0.2",org.apache
- .mina.core.filterchain;version="2.0.2",org.apache.mina.core.session;v
- ersion="2.0.2",org.apache.mina.core.write;version="2.0.2",org.slf4j;v
- ersion="1.7.0"
+Bundle-Name: Eclipse SCADA ISO 8073 (Incubation)
 Bundle-SymbolicName: org.eclipse.scada.protocol.iso8073
+Bundle-Version: 0.1.0.qualifier
+Bundle-Vendor: Eclipse SCADA Project
+Export-Package: org.eclipse.scada.protocol.iso8073;version="0.1.0";
+  uses:="org.apache.mina.core.session,
+   org.apache.mina.core.buffer,
+   org.apache.mina.core.filterchain,
+   org.apache.mina.core.write"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-
+Import-Package: org.apache.mina.core.buffer;version="2.0.2",
+ org.apache.mina.core.filterchain;version="2.0.2",
+ org.apache.mina.core.session;version="2.0.2",
+ org.apache.mina.core.write;version="2.0.2",
+ org.slf4j;version="1.7.0"
