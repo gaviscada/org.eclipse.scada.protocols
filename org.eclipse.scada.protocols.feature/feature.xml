@@ -1,11 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<feature
-      id="org.eclipse.scada.protocols"
-      label="%featureName"
-      version="0.1.0.qualifier"
-      provider-name="%providerName"
-      license-feature="org.eclipse.scada.license"
-      license-feature-version="0.1.0.qualifier">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><feature id="org.eclipse.scada.protocols" label="%featureName" license-feature="org.eclipse.scada.license" license-feature-version="0.1.0.qualifier" provider-name="%providerName" version="0.1.0.v20140430-1526">
 
    <description>
       %description
@@ -30,66 +23,22 @@
       <import feature="org.eclipse.scada.license" version="0.1.0.qualifier"/>
    </requires>
 
-   <plugin
-         id="org.eclipse.scada.protocol.dave"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <plugin download-size="0" id="org.eclipse.scada.protocol.dave" install-size="0" unpack="false" version="0.0.0"/>
 
-   <plugin
-         id="org.eclipse.scada.protocol.iso8073"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <plugin download-size="0" id="org.eclipse.scada.protocol.iso8073" install-size="0" unpack="false" version="0.0.0"/>
 
-   <plugin
-         id="org.eclipse.scada.protocol.tkpt"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <plugin download-size="0" id="org.eclipse.scada.protocol.tkpt" install-size="0" unpack="false" version="0.0.0"/>
 
-   <plugin
-         id="org.eclipse.scada.protocols"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <plugin download-size="0" id="org.eclipse.scada.protocols" install-size="0" unpack="false" version="0.0.0"/>
 
-   <plugin
-         id="org.eclipse.scada.protocol.arduino"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+   <plugin download-size="0" id="org.eclipse.scada.protocol.arduino" install-size="0" version="0.0.0"/>
 
-   <plugin
-         id="org.eclipse.scada.protocol.ngp.common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <plugin download-size="0" id="org.eclipse.scada.protocol.ngp.common" install-size="0" unpack="false" version="0.0.0"/>
 
-   <plugin
-         id="org.eclipse.scada.protocol.common"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <plugin download-size="0" id="org.eclipse.scada.protocol.common" install-size="0" unpack="false" version="0.0.0"/>
 
-   <plugin
-         id="org.eclipse.scada.protocol.modbus"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <plugin download-size="0" id="org.eclipse.scada.protocol.modbus" install-size="0" unpack="false" version="0.0.0"/>
 
-   <plugin
-         id="org.eclipse.scada.protocol.utils"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <plugin download-size="0" id="org.eclipse.scada.protocol.utils" install-size="0" unpack="false" version="0.0.0"/>
 
 </feature>
