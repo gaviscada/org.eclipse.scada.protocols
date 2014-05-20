@@ -5,13 +5,13 @@ Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,org.eclipse.co
  e,org.eclipse.acceleo.model,org.eclipse.acceleo.engine,org.eclipse.sc
  ada.protocol.ngp.model;bundle-version="0.1.0"
 Bundle-Vendor: Eclipse Modeling Project
-Bundle-ActivationPolicy: lazy
 Eclipse-LazyStart: true
-Bundle-Version: 0.1.0.v20140506-1600
+Bundle-ActivationPolicy: lazy
+Bundle-Version: 0.1.0.v20140506-1700
 Bundle-Name: Acceleo Generator Module IDE Plug-in (Incubation)
-Bundle-ManifestVersion: 2
 Bundle-Activator: org.eclipse.scada.protocol.ngp.generator.ui.Activato
  r
+Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.scada.protocol.ngp.generator.ui;singl
  eton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
