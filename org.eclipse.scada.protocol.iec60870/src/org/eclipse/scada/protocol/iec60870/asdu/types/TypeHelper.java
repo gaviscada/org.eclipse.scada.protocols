@@ -19,7 +19,7 @@ import org.eclipse.scada.protocol.iec60870.ProtocolOptions;
 
 public class TypeHelper
 {
-    private static void encodeTimestamp ( final ProtocolOptions options, final ByteBuf out, final long timestamp )
+    static void encodeTimestamp ( final ProtocolOptions options, final ByteBuf out, final long timestamp )
     {
         final Calendar c = new GregorianCalendar ( options.getTimeZone () );
         c.setTimeInMillis ( timestamp );
@@ -49,7 +49,7 @@ public class TypeHelper
         out.writeByte ( year );
     }
 
-    private static long parseTimestamp ( final ProtocolOptions options, final ByteBuf data )
+    static long parseTimestamp ( final ProtocolOptions options, final ByteBuf data )
     {
         final int ms = data.readUnsignedShort ();
 
@@ -76,7 +76,7 @@ public class TypeHelper
         year = year + 2000;
 
         final Calendar c = new GregorianCalendar ( options.getTimeZone () );
-        c.set ( year, month, dayOfMonth, hours, minutes, ms / 1_000 );
+        c.set ( year, month - 1, dayOfMonth, hours, minutes, ms / 1_000 );
         c.set ( Calendar.MILLISECOND, ms % 1_000 );
         return c.getTimeInMillis ();
     }
@@ -101,6 +101,25 @@ public class TypeHelper
     }
 
     /**
+     * Encode Double-point information with quality descriptor
+     *
+     * @param withTimestamp
+     *            <code>true</code> if the time should be encoded as well,
+     *            <code>false</code> otherwise
+     */
+    public static void encodeDoublePointValue ( final ProtocolOptions options, final ByteBuf out, final Value<DoublePoint> value, final boolean withTimestamp )
+    {
+        byte diq = (byte) ( value.getValue ().ordinal () & 0b00000011 );
+        diq = value.getQualityInformation ().apply ( diq );
+        out.writeByte ( diq );
+
+        if ( withTimestamp )
+        {
+            encodeTimestamp ( options, out, value.getTimestamp () );
+        }
+    }
+
+    /**
      * Parse Single-point information with quality descriptor
      *
      * @param withTimestamp
@@ -117,6 +136,25 @@ public class TypeHelper
         final long timestamp = withTimestamp ? parseTimestamp ( options, data ) : System.currentTimeMillis ();
 
         return new Value<Boolean> ( value, timestamp, qualityInformation );
+    }
+
+    /**
+     * Parse Double-point information with quality descriptor
+     *
+     * @param withTimestamp
+     *            <code>true</code> if the time should be parsed as well,
+     *            <code>false</code> otherwise
+     */
+    public static Value<DoublePoint> parseDoublePointValue ( final ProtocolOptions options, final ByteBuf data, final boolean withTimestamp )
+    {
+        final byte diq = data.readByte ();
+
+        final DoublePoint value = DoublePoint.values ()[diq & 0b00000011];
+        final QualityInformation qualityInformation = QualityInformation.parse ( diq );
+
+        final long timestamp = withTimestamp ? parseTimestamp ( options, data ) : System.currentTimeMillis ();
+
+        return new Value<DoublePoint> ( value, timestamp, qualityInformation );
     }
 
     /**
@@ -151,5 +189,39 @@ public class TypeHelper
         final long timestamp = withTimestamp ? parseTimestamp ( options, data ) : System.currentTimeMillis ();
 
         return new Value<Float> ( value, timestamp, qualityInformation, overflow );
+    }
+
+    /**
+     * Encode Short integer number with quality descriptor
+     */
+    public static void encodeScaledValue ( final ProtocolOptions options, final ByteBuf out, final Value<Short> value, final boolean withTimestamp )
+    {
+        final byte qds = (byte) ( value.isOverflow () ? 0b00000001 : 0b00000000 );
+        final byte siq = value.getQualityInformation ().apply ( qds );
+
+        out.writeShort ( value.getValue () );
+        out.writeByte ( siq );
+
+        if ( withTimestamp )
+        {
+            encodeTimestamp ( options, out, value.getTimestamp () );
+        }
+    }
+
+    /**
+     * Parse Short integer number with quality descriptor
+     */
+    public static Value<Short> parseScaledValue ( final ProtocolOptions options, final ByteBuf data, final boolean withTimestamp )
+    {
+        final short value = data.readShort ();
+
+        final byte qds = data.readByte ();
+
+        final QualityInformation qualityInformation = QualityInformation.parse ( qds );
+        final boolean overflow = ( qds & 0b00000001 ) > 0;
+
+        final long timestamp = withTimestamp ? parseTimestamp ( options, data ) : System.currentTimeMillis ();
+
+        return new Value<Short> ( value, timestamp, qualityInformation, overflow );
     }
 }
