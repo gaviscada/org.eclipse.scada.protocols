@@ -10,13 +10,20 @@
  *******************************************************************************/
 package org.eclipse.scada.protocol.iec60870.client.data;
 
+import java.io.Serializable;
+
+import org.eclipse.scada.utils.beans.AbstractPropertyChange;
+
 public class DataModuleOptions
 {
     private final boolean ignoreBackgroundScan;
 
-    private DataModuleOptions ( final boolean ignoreBackgroundScan )
+    private final Byte causeSourceAddress;
+
+    private DataModuleOptions ( final boolean ignoreBackgroundScan, final Byte causeSourceAddress )
     {
         this.ignoreBackgroundScan = ignoreBackgroundScan;
+        this.causeSourceAddress = causeSourceAddress;
     }
 
     public boolean isIgnoreBackgroundScan ()
@@ -24,17 +31,46 @@ public class DataModuleOptions
         return this.ignoreBackgroundScan;
     }
 
-    public static class Builder
+    public Byte getCauseSourceAddress ()
     {
+        return this.causeSourceAddress;
+    }
+
+    public static class Builder extends AbstractPropertyChange implements Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public static final String PROP_IGNORE_BACKGROUND_SCAN = "ignoreBackgroundScan";
+
+        public static final String PROP_CAUSE_SOURCE_ADDRESS = "causeSourceAddress";
+
         private boolean ignoreBackgroundScan;
+
+        private Byte causeSourceAddress;
 
         public Builder ()
         {
         }
 
+        public Builder ( final DataModuleOptions options )
+        {
+            this.causeSourceAddress = options.getCauseSourceAddress ();
+            this.ignoreBackgroundScan = options.isIgnoreBackgroundScan ();
+        }
+
+        public void setCauseSourceAddress ( final Byte causeSourceAddress )
+        {
+            firePropertyChange ( PROP_CAUSE_SOURCE_ADDRESS, this.causeSourceAddress, this.causeSourceAddress = causeSourceAddress );
+        }
+
+        public Byte getCauseSourceAddress ()
+        {
+            return this.causeSourceAddress;
+        }
+
         public void setIgnoreBackgroundScan ( final boolean ignoreBackgroundScan )
         {
-            this.ignoreBackgroundScan = ignoreBackgroundScan;
+            firePropertyChange ( PROP_IGNORE_BACKGROUND_SCAN, this.ignoreBackgroundScan, this.ignoreBackgroundScan = ignoreBackgroundScan );
         }
 
         public boolean isIgnoreBackgroundScan ()
@@ -44,7 +80,7 @@ public class DataModuleOptions
 
         public DataModuleOptions build ()
         {
-            return new DataModuleOptions ( this.ignoreBackgroundScan );
+            return new DataModuleOptions ( this.ignoreBackgroundScan, this.causeSourceAddress );
         }
     }
 }

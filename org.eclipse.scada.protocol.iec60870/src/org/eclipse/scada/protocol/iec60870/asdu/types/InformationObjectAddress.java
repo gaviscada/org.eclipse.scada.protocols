@@ -82,9 +82,30 @@ public class InformationObjectAddress
     @Override
     public String toString ()
     {
+        final int add[] = toArray ();
+        return String.format ( "[%d-%d-%d # %d]", add[0], add[1], add[2], this.address );
+    }
+
+    public int[] toArray ()
+    {
         final ByteBuf buf = Unpooled.buffer ( 4 );
         buf.writeMedium ( this.address );
-        return String.format ( "[%d-%d-%d # %d]", buf.getUnsignedByte ( 0 ), buf.getUnsignedByte ( 1 ), buf.getUnsignedByte ( 2 ), this.address );
+        return new int[] { buf.getUnsignedByte ( 0 ), buf.getUnsignedByte ( 1 ), buf.getUnsignedByte ( 2 ) };
+    }
+
+    public static InformationObjectAddress fromArray ( final int[] data )
+    {
+        if ( data.length > 3 )
+        {
+            throw new IllegalArgumentException ( "Address may only have a maximum of 3 segments" );
+        }
+
+        int address = 0;
+        for ( final int seg : data )
+        {
+            address = address << 8 | seg;
+        }
+        return valueOf ( address );
     }
 
     public static InformationObjectAddress fromString ( final String value )

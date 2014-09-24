@@ -12,10 +12,12 @@ package org.eclipse.scada.protocol.iec60870.client.data;
 
 import io.netty.channel.ChannelHandlerContext;
 
+import org.eclipse.scada.protocol.iec60870.asdu.ASDUHeader;
 import org.eclipse.scada.protocol.iec60870.asdu.message.DataTransmissionMessage;
 import org.eclipse.scada.protocol.iec60870.asdu.message.DoublePointInformationSequence;
 import org.eclipse.scada.protocol.iec60870.asdu.message.DoublePointInformationSingle;
 import org.eclipse.scada.protocol.iec60870.asdu.message.DoublePointInformationTimeSingle;
+import org.eclipse.scada.protocol.iec60870.asdu.message.InterrogationCommand;
 import org.eclipse.scada.protocol.iec60870.asdu.message.MeasuredValueScaledSequence;
 import org.eclipse.scada.protocol.iec60870.asdu.message.MeasuredValueScaledSingle;
 import org.eclipse.scada.protocol.iec60870.asdu.message.MeasuredValueScaledTimeSingle;
@@ -25,13 +27,15 @@ import org.eclipse.scada.protocol.iec60870.asdu.message.MeasuredValueShortFloati
 import org.eclipse.scada.protocol.iec60870.asdu.message.SinglePointInformationSequence;
 import org.eclipse.scada.protocol.iec60870.asdu.message.SinglePointInformationSingle;
 import org.eclipse.scada.protocol.iec60870.asdu.message.SinglePointInformationTimeSingle;
+import org.eclipse.scada.protocol.iec60870.asdu.types.ASDUAddress;
 import org.eclipse.scada.protocol.iec60870.asdu.types.Cause;
+import org.eclipse.scada.protocol.iec60870.asdu.types.CauseOfTransmission;
 import org.eclipse.scada.protocol.iec60870.asdu.types.StandardCause;
 import org.eclipse.scada.protocol.iec60870.io.AbstractModuleHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DataModuleHandler extends AbstractModuleHandler
+public class DataModuleHandler extends AbstractModuleHandler implements DataModuleContext
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( DataModuleHandler.class );
@@ -39,6 +43,8 @@ public class DataModuleHandler extends AbstractModuleHandler
     private final DataHandler dataHandler;
 
     private final DataModuleOptions options;
+
+    private ChannelHandlerContext ctx;
 
     public DataModuleHandler ( final DataHandler dataHandler, final DataModuleOptions options )
     {
@@ -50,6 +56,43 @@ public class DataModuleHandler extends AbstractModuleHandler
     public void channelActive ( final ChannelHandlerContext ctx ) throws Exception
     {
         super.channelActive ( ctx );
+        this.ctx = ctx;
+        this.dataHandler.activated ( this, ctx );
+    }
+
+    protected ASDUHeader makeHeader ( final Cause cause, final ASDUAddress address )
+    {
+        if ( this.options.getCauseSourceAddress () != null )
+        {
+            return new ASDUHeader ( new CauseOfTransmission ( cause, this.options.getCauseSourceAddress () ), address );
+        }
+        else
+        {
+            return new ASDUHeader ( new CauseOfTransmission ( cause ), address );
+        }
+    }
+
+    @Override
+    public void startInterrogation ( final ASDUAddress address, final short qualifierOfInterrogation )
+    {
+        final ChannelHandlerContext ctx = this.ctx;
+        if ( ctx == null )
+        {
+            return;
+        }
+
+        ctx.writeAndFlush ( new InterrogationCommand ( makeHeader ( StandardCause.ACTIVATED, address ), qualifierOfInterrogation ) );
+    }
+
+    @Override
+    public void requestStartData ()
+    {
+        final ChannelHandlerContext ctx = this.ctx;
+        if ( ctx == null )
+        {
+            return;
+        }
+
         ctx.writeAndFlush ( DataTransmissionMessage.REQUEST_START );
     }
 
@@ -60,7 +103,7 @@ public class DataModuleHandler extends AbstractModuleHandler
 
         if ( msg == DataTransmissionMessage.CONFIRM_START )
         {
-            handleStarted ( ctx );
+            handleStarted ();
         }
         else if ( msg instanceof SinglePointInformationTimeSingle )
         {
@@ -128,9 +171,9 @@ public class DataModuleHandler extends AbstractModuleHandler
         this.dataHandler.disconnected ();
     }
 
-    protected void handleStarted ( final ChannelHandlerContext ctx )
+    protected void handleStarted ()
     {
-        this.dataHandler.connected ( ctx );
+        this.dataHandler.started ();
     }
 
     protected void handleDataMessage ( final SinglePointInformationTimeSingle msg )

@@ -81,9 +81,30 @@ public class ASDUAddress
     @Override
     public String toString ()
     {
+        final int[] add = toArray ();
+        return isBroadcast () ? "[BCAST]" : String.format ( "[%d-%d # %d]", add[0], add[1], this.address );
+    }
+
+    public int[] toArray ()
+    {
         final ByteBuf buf = Unpooled.buffer ( 2 );
         buf.writeShort ( this.address );
-        return isBroadcast () ? "[BCAST]" : String.format ( "[%d-%d # %d]", buf.getUnsignedByte ( 0 ), buf.getUnsignedByte ( 1 ), this.address );
+        return new int[] { buf.getUnsignedByte ( 0 ), buf.getUnsignedByte ( 1 ) };
+    }
+
+    public static ASDUAddress fromArray ( final int[] data )
+    {
+        if ( data.length > 2 )
+        {
+            throw new IllegalArgumentException ( "Address may only have a maximum of 2 segments" );
+        }
+
+        int address = 0;
+        for ( final int i : data )
+        {
+            address = address << 8 | i;
+        }
+        return valueOf ( address );
     }
 
     public static ASDUAddress fromString ( final String value )

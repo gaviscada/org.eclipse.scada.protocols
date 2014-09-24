@@ -21,6 +21,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
 import java.net.SocketAddress;
@@ -136,7 +137,7 @@ public class Client implements AutoCloseable
             future.get ();
             this.channel = future.channel ();
 
-            fireConnected ();
+            fireConnected ( this.channel );
             result.set ( null );
         }
         catch ( final InterruptedException | ExecutionException e )
@@ -146,7 +147,7 @@ public class Client implements AutoCloseable
         }
     }
 
-    private void fireConnected ()
+    private void fireConnected ( final Channel channel )
     {
         if ( this.listener != null )
         {
@@ -154,7 +155,7 @@ public class Client implements AutoCloseable
                 @Override
                 public void run ()
                 {
-                    Client.this.listener.connected ();
+                    Client.this.listener.connected ( channel );
                 };
             } );
         }
@@ -224,19 +225,37 @@ public class Client implements AutoCloseable
     {
         synchronized ( this )
         {
-            for ( final Module module : this.modules )
-            {
-                module.dispose ();
-            }
-
             if ( this.channel != null )
             {
                 this.channel.close ();
                 this.channel = null;
             }
+
+            for ( final Module module : this.modules )
+            {
+                module.dispose ();
+            }
         }
 
+        logger.debug ( "Shutting down main group" );
+        final Future<?> f = this.group.shutdownGracefully ();
+        f.addListener ( new GenericFutureListener<Future<Object>> () {
+            @Override
+            public void operationComplete ( final Future<Object> arg0 ) throws Exception
+            {
+                disposeExecutor ();
+            }
+        } );
+    }
+
+    protected void disposeExecutor ()
+    {
+        logger.debug ( "Shutting down executor" );
         this.executor.shutdown ();
-        this.group.shutdownGracefully ();
+    }
+
+    public void writeCommand ( final Object command )
+    {
+        this.channel.writeAndFlush ( command );
     }
 }
