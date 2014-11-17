@@ -36,6 +36,7 @@ import org.apache.mina.transport.socket.nio.NioSession;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.eclipse.scada.protocol.modbus.codec.ModbusRtuDecoder;
 import org.eclipse.scada.protocol.modbus.codec.ModbusRtuEncoder;
+import org.eclipse.scada.protocol.modbus.codec.ModbusRtuProtocolCodecFilter;
 import org.eclipse.scada.protocol.modbus.codec.ModbusSlaveProtocolFilter;
 import org.eclipse.scada.protocol.modbus.codec.ModbusTcpDecoder;
 import org.eclipse.scada.protocol.modbus.codec.ModbusTcpEncoder;
@@ -190,7 +191,7 @@ public class SlaveHost
             {
                 final ModbusRtuEncoder encoder = new ModbusRtuEncoder ();
                 final ModbusRtuDecoder decoder = new ModbusRtuDecoder ( this.executor, this.options.getInterFrameDelay (), TimeUnit.MILLISECONDS );
-                service.getFilterChain ().addLast ( "modbusPdu", new ProtocolCodecFilter ( encoder, decoder ) ); //$NON-NLS-1$
+                service.getFilterChain ().addLast ( "modbusPdu", new ModbusRtuProtocolCodecFilter ( encoder, decoder ) ); //$NON-NLS-1$
             }
             break;
 
@@ -217,6 +218,13 @@ public class SlaveHost
                 logger.info ( "Uncaught exception", cause );
                 handleExceptionCaught ( session, cause );
             };
+
+            @Override
+            public void sessionCreated ( final IoSession session ) throws Exception
+            {
+                logger.info ( "Session created: {}", session ); //$NON-NLS-1$
+                handleSessionCreated ( session );
+            }
 
             @Override
             public void sessionOpened ( final IoSession session ) throws Exception
@@ -348,6 +356,10 @@ public class SlaveHost
     protected void handleSessionIdle ( final IoSession session )
     {
         session.close ( true );
+    }
+
+    protected void handleSessionCreated ( final IoSession session )
+    {
     }
 
     protected void handleSessionOpened ( final IoSession session )
